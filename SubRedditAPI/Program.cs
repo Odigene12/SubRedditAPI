@@ -1,10 +1,18 @@
+using Microsoft.Net.Http.Headers;
 using SubRedditAPI.Configurations;
+using SubRedditAPI.Interfaces;
+using SubRedditAPI.Repositories;
+using SubRedditAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+
+
+
 // Access user secrets to use Reddit API
 if (builder.Environment.IsDevelopment())
 {
@@ -17,11 +25,14 @@ var redditApiCredentials = new RedditAPIConfig();
 builder.Configuration.Bind("RedditApiCredentials", redditApiCredentials);
 builder.Services.AddSingleton(redditApiCredentials);
 
+builder.Services.AddScoped<IRedditRepository, RedditRepository>();
+builder.Services.AddScoped<IRedditOAuthService, RedditOAuthService>();
+
 // Register the RedditService
 builder.Services.AddHttpClient("RedditClient" , client =>
 {
-    client.BaseAddress = new Uri("https://www.reddit.com/");
-    client.DefaultRequestHeaders.Add("User-Agent", "SubRedditAPI");
+    client.BaseAddress = new Uri("https://www.reddit.com/api/v1/");
+    client.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "trafficAPI/1.0.0 (by /u/Zealousideal-Arm9079)");
 });
 
 

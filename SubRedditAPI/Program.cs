@@ -27,6 +27,7 @@ builder.Services.AddSingleton(redditApiCredentials);
 
 builder.Services.AddScoped<IRedditRepository, RedditRepository>();
 builder.Services.AddScoped<IRedditOAuthService, RedditOAuthService>();
+builder.Services.AddScoped<IRedditService, RedditService>();
 
 // Register the RedditService
 builder.Services.AddHttpClient("RedditClient" , client =>

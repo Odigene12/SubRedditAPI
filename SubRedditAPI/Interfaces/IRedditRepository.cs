@@ -1,7 +1,13 @@
-﻿namespace SubRedditAPI.Interfaces
+﻿using SubRedditAPI.Models;
+
+namespace SubRedditAPI.Interfaces
 {
     public interface IRedditRepository
     {
-        Task<string> GetSubRedditAsync();
+        Task<HttpResponseMessage> GetSubRedditAsync();
+
+        Task<List<RedditPostData>> GetPostWithMostUpVotes();
+
+        Task<Dictionary<string, int>> GetUsersWithMostPosts();
     }
 }

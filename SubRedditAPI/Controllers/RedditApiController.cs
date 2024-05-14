@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SubRedditAPI.Interfaces;
 using SubRedditAPI.Models;
-using SubRedditAPI.Repositories;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,18 +10,26 @@ namespace SubRedditAPI.Controllers
     [ApiController]
     public class RedditApiController : ControllerBase
     {
-        private readonly IRedditRepository _redditRepository;
+        private readonly IRedditService _redditService;
 
-        public RedditApiController(IRedditRepository redditRepository)
+        public RedditApiController(IRedditService redditService)
         {
-            _redditRepository = redditRepository;
+            _redditService = redditService;
         }
 
         // GET: api/<RedditApiController>
         [HttpGet]
-        public async Task<string> GetRedditStats()
+        [Route("GetPostWithMostUpVotes")]
+        public async Task<List<RedditPostData>> GetPostWithMostUpVotes()
         {
-            return await _redditRepository.GetSubRedditAsync();
+            return await _redditService.GetPostWithMostUpVotes();
+        }
+
+        [HttpGet]
+        [Route("GetUsersWithMostPosts")]
+        public async Task<Dictionary<string, int>> GetUsersWithMostPosts()
+        {
+            return await _redditService.GetUsersWithMostPosts();
         }
     }
 }

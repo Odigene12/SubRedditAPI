@@ -11,7 +11,7 @@ namespace SubRedditAPI.Repositories
         private readonly IHttpClientFactory _httpClientFactory;
 
         // The URL to get the top posts from the anime subreddit for the month in JSON format
-        private const string SubredditUrl = "https://oauth.reddit.com/r/anime/top.json?sort=top&t=year&limit=100";
+        private const string SubredditUrl = "https://oauth.reddit.com/r/gaming/top.json?sort=top&t=all&limit=100";
         public RedditRepository(IRedditOAuthService redditOAuthService, IHttpClientFactory httpClientFactory) 
         {
             _redditOAuthService = redditOAuthService;

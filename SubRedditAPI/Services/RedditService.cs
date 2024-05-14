@@ -1,5 +1,6 @@
 ﻿using SubRedditAPI.Interfaces;
 using SubRedditAPI.Models;
+using Serilog;
 
 namespace SubRedditAPI.Services
 {
@@ -14,12 +15,28 @@ namespace SubRedditAPI.Services
 
         public async Task<List<RedditPostData>> GetPostWithMostUpVotes()
         {
-            return await _redditRepository.GetPostWithMostUpVotes();
+            try
+            {
+                return await _redditRepository.GetPostWithMostUpVotes();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error retrieving Users With Most Posts from Service Layer");
+                throw;
+            }
         }
 
         public async Task<Dictionary<string, int>> GetUsersWithMostPosts()
         {
-            return await _redditRepository.GetUsersWithMostPosts();
+            try
+            {
+                return await _redditRepository.GetUsersWithMostPosts();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error retrieving Users With Most Posts from Service Layer");
+                throw;
+            }
         }
     }
 }

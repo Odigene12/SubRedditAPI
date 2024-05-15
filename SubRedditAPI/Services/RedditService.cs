@@ -23,7 +23,7 @@ namespace SubRedditAPI.Services
             }
         }
 
-        public async Task<Dictionary<string, int>> GetUsersWithMostPosts()
+        public async Task<Dictionary<string, int>?> GetUsersWithMostPosts()
         {
             try
             {

@@ -10,7 +10,7 @@ namespace SubRedditAPI.Services
     {
         private readonly RedditAPIConfig _redditAPIConfig;
         private readonly IHttpClientFactory _httpClientFactory;
-        private const string REDIRECT_URI = "https://localhost:7181";
+        private const string REDIRECT_URI = "https://localhost:7181"; // matches the redirect uri in the Reddit app
 
         public RedditOAuthService(RedditAPIConfig redditAPIConfig, IHttpClientFactory httpClientFactory)
         {

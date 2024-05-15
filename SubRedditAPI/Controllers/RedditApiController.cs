@@ -15,37 +15,37 @@ namespace SubRedditAPI.Controllers
 
         public RedditApiController(IRedditService redditService) => _redditService = redditService;
 
-        // GET: api/<RedditApiController>
         [HttpGet]
         [Route("GetPostWithMostUpVotes")]
-        public async Task<List<RedditPostData?>?> GetPostWithMostUpVotes()
+        public async Task<ActionResult<List<RedditPostData?>?>> GetPostWithMostUpVotes()
         {
             Log.Information("Received GET request to GetPostWithMostUpVotes");
             try
             {
                 var postWithMostUpVotes = await _redditService.GetPostWithMostUpVotes();
-                return postWithMostUpVotes ?? new List<RedditPostData?>();
+                return Ok(postWithMostUpVotes);
             }
             catch (Exception ex)
             {
                 Log.Warning(ex, "Request failed for GetPostWithMostUpVotes");
-                throw;
+                return StatusCode(500, new { message = "An error occurred while processing your request.", error = ex.Message });
             }
         }
 
         [HttpGet]
         [Route("GetUsersWithMostPosts")]
-        public async Task<Dictionary<string, int>> GetUsersWithMostPosts()
+        public async Task<ActionResult<Dictionary<string, int>>> GetUsersWithMostPosts()
         {
             Log.Information("Received GET request to GetUsersWithMostPosts");
             try
             {
-                return await _redditService.GetUsersWithMostPosts();
+                var usersWithMostPosts = await _redditService.GetUsersWithMostPosts();
+                return Ok(usersWithMostPosts);
             }
             catch (Exception ex)
             {
                 Log.Warning(ex, "Request failed for GetUsersWithMostPosts");
-                throw;
+                return StatusCode(500,new { message = "An error occurred while processing your request.", error = ex.Message }); 
             }
         }
     }

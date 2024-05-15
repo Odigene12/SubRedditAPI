@@ -39,6 +39,7 @@ namespace SubRedditAPI.Repositories
                     var content = await subRedditResponse.Content.ReadAsStringAsync();
                     var topPostResponse = JsonConvert.DeserializeObject<RedditTopPostResponse>(content);
                     List<RedditPostData?>? redditPostDataList = topPostResponse?.Data?.RedditPostDataList;
+
                     if (redditPostDataList?.Count > 0)
                     {
                         Log.Debug($"Successfully retrieved {redditPostDataList?.Count} Posts");

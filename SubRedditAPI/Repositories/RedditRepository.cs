@@ -11,6 +11,8 @@ namespace SubRedditAPI.Repositories
         private readonly IRedditOAuthService _redditOAuthService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IRateLimitService _rateLimitService;
+        private const string CacheKey = "GetSubRedditResponseAsync";
+
 
         // The URL to get the top posts from the anime subreddit for the month in JSON format
         private const string SubredditUrl = "https://oauth.reddit.com/r/gaming/top.json?sort=top&t=all&limit=100";
@@ -32,7 +34,13 @@ namespace SubRedditAPI.Repositories
 
                 var subRedditResponse = await GetSubRedditResponseAsync();
 
-                await HandleRateLimit(subRedditResponse, "GetSubRedditResponseAsync");
+
+                var cachedData = HandleRateLimit(subRedditResponse, CacheKey);
+
+                if (cachedData != null)
+                {
+                    return (List<RedditPostData?>?)cachedData;
+                }
 
                 if (subRedditResponse.IsSuccessStatusCode)
                 {
@@ -62,12 +70,17 @@ namespace SubRedditAPI.Repositories
         {
             try
             {
-                Log.Debug("Getting Users with Most Upvotes");
+                Log.Debug("Getting Users with Most Posts");
 
                 var subRedditResponse = await GetSubRedditResponseAsync();
                 var authorPosts = new Dictionary<string, int>();
 
-                await HandleRateLimit(subRedditResponse, "GetSubRedditResponseAsync");
+                var cachedData =  HandleRateLimit(subRedditResponse, CacheKey);
+
+                if (cachedData != null)
+                {
+                    return (Dictionary<string, int>?)cachedData;
+                }
 
                 if (subRedditResponse.IsSuccessStatusCode)
                 {
@@ -105,7 +118,7 @@ namespace SubRedditAPI.Repositories
             }
         }
 
-        public async Task<HttpResponseMessage?> GetSubRedditResponseAsync()
+        private async Task<HttpResponseMessage?> GetSubRedditResponseAsync()
         {
             try
             {
@@ -129,18 +142,21 @@ namespace SubRedditAPI.Repositories
             }
         }
 
-        private async Task HandleRateLimit(HttpResponseMessage? subRedditResponse, string apiBeingCalled)
+        private object? HandleRateLimit(HttpResponseMessage? subRedditResponse, string apiBeingCalled)
         {
             int remainingNumberOfCalls = int.Parse(subRedditResponse.Headers.GetValues("X-Ratelimit-Remaining").First());
+            object? cachedData = null;
 
             bool isRequestLimitReached = _rateLimitService.IsRequestAtRateLimit(apiBeingCalled, remainingNumberOfCalls);
 
             if (isRequestLimitReached)
             {
                 Log.Warning($"Request Limit has been reached for {apiBeingCalled} call");
-                Log.Debug("Delaying request by 1 Minute");
-                await Task.Delay(1000);
+                Log.Information("Returning cached data for {apiBeingCalled} call");
+                cachedData = _rateLimitService.ReturnCachedData(CacheKey);
             }
+
+            return cachedData;
         }
     }
 }

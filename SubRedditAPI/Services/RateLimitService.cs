@@ -23,5 +23,7 @@ namespace SubRedditAPI.Services
             _memoryCache.Set(cacheKey, numberOfcalls++);
             return false;
         }
+
+        public object? ReturnCachedData(string cacheKey) => _memoryCache.Get<object?>(cacheKey);
     }
 }

@@ -5,6 +5,6 @@ namespace SubRedditAPI.Models
     public class RedditTopPostResponse
     {
         [JsonProperty("data")]
-        public RedditResponse? Data { get; set; }
+        public RedditResponse Data { get; set; } = new();
     }
 }

@@ -5,6 +5,6 @@ namespace SubRedditAPI.Models
     public class RedditResponse
     {
         [JsonProperty("children")]
-        public List<RedditPostData> RedditPostDataList { get; set; } = new();
+        public List<RedditPostData?> RedditPostDataList { get; set; } = new();
     }
 }

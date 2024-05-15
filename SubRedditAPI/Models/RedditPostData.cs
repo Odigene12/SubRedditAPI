@@ -5,6 +5,6 @@ namespace SubRedditAPI.Models
     public class RedditPostData
     {
         [JsonProperty("data")]
-        public Post PostData { get; set; } = new();
+        public Post? PostData { get; set; } = new();
     }
 }

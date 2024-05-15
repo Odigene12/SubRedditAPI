@@ -13,20 +13,18 @@ namespace SubRedditAPI.Controllers
     {
         private readonly IRedditService _redditService;
 
-        public RedditApiController(IRedditService redditService)
-        {
-            _redditService = redditService;
-        }
+        public RedditApiController(IRedditService redditService) => _redditService = redditService;
 
         // GET: api/<RedditApiController>
         [HttpGet]
         [Route("GetPostWithMostUpVotes")]
-        public async Task<List<RedditPostData>> GetPostWithMostUpVotes()
+        public async Task<List<RedditPostData?>?> GetPostWithMostUpVotes()
         {
             Log.Information("Received GET request to GetPostWithMostUpVotes");
             try
             {
-                return await _redditService.GetPostWithMostUpVotes();
+                var postWithMostUpVotes = await _redditService.GetPostWithMostUpVotes();
+                return postWithMostUpVotes ?? new List<RedditPostData?>();
             }
             catch (Exception ex)
             {

@@ -9,6 +9,7 @@ namespace SubRedditAPI.Repositories
         private readonly RedditRepository _decoratedRepo;
         private readonly IMemoryCache _memoryCache;
 
+        // decorate the RedditRepository with a cache layer for the Reddit API
         public RedditCacheRepository(RedditRepository decoratedRepo, IMemoryCache memoryCache)
         {
 

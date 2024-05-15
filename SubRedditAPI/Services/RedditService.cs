@@ -8,16 +8,13 @@ namespace SubRedditAPI.Services
     {
         private readonly IRedditRepository _redditRepository;
 
-        public RedditService(IRedditRepository redditRepository)
-        {
-            _redditRepository = redditRepository;
-        }
+        public RedditService(IRedditRepository redditRepository) => _redditRepository = redditRepository;
 
-        public async Task<List<RedditPostData>> GetPostWithMostUpVotes()
+        public async Task<List<RedditPostData?>?> GetPostWithMostUpVotes()
         {
             try
             {
-                return await _redditRepository.GetPostWithMostUpVotes();
+                return await _redditRepository.GetPostWithMostUpVotesAsync();
             }
             catch (Exception ex)
             {
@@ -30,7 +27,7 @@ namespace SubRedditAPI.Services
         {
             try
             {
-                return await _redditRepository.GetUsersWithMostPosts();
+                return await _redditRepository.GetUsersWithMostPostsAsync();
             }
             catch (Exception ex)
             {

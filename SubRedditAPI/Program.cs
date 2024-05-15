@@ -4,6 +4,7 @@ using SubRedditAPI.Interfaces;
 using SubRedditAPI.Repositories;
 using SubRedditAPI.Services;
 using Serilog;
+using Microsoft.Extensions.Caching.Memory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,9 +27,12 @@ var redditApiCredentials = new RedditAPIConfig();
 builder.Configuration.Bind("RedditApiCredentials", redditApiCredentials);
 builder.Services.AddSingleton(redditApiCredentials);
 
-builder.Services.AddScoped<IRedditRepository, RedditRepository>();
+builder.Services.AddScoped<RedditRepository>();
+builder.Services.AddScoped<IRedditRepository, RedditCacheRepository>();
+builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IRedditOAuthService, RedditOAuthService>();
 builder.Services.AddScoped<IRedditService, RedditService>();
+builder.Services.AddScoped<IRateLimitService, RateLimitService>();
 
 builder.Host.UseSerilog((context, logConfig) => logConfig
     .WriteTo.Console()

@@ -10,36 +10,44 @@ namespace SubRedditAPI.Repositories
     {
         private readonly IRedditOAuthService _redditOAuthService;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IRateLimitService _rateLimitService;
 
         // The URL to get the top posts from the anime subreddit for the month in JSON format
         private const string SubredditUrl = "https://oauth.reddit.com/r/gaming/top.json?sort=top&t=all&limit=100";
-        public RedditRepository(IRedditOAuthService redditOAuthService, IHttpClientFactory httpClientFactory) 
+        public RedditRepository(
+            IRedditOAuthService redditOAuthService, 
+            IHttpClientFactory httpClientFactory,
+            IRateLimitService rateLimitService) 
         {
             _redditOAuthService = redditOAuthService;
             _httpClientFactory = httpClientFactory;
+            _rateLimitService = rateLimitService;
         }
 
-        public async Task<List<RedditPostData>> GetPostWithMostUpVotes()
+        public async Task<List<RedditPostData?>?> GetPostWithMostUpVotesAsync()
         {
             try
             {
                 Log.Debug("Getting Posts with Most Upvotes");
 
                 var subRedditResponse = await GetSubRedditResponseAsync();
+
+                await HandleRateLimit(subRedditResponse, "GetSubRedditResponseAsync");
+
                 if (subRedditResponse.IsSuccessStatusCode)
                 {
                     var content = await subRedditResponse.Content.ReadAsStringAsync();
                     var topPostResponse = JsonConvert.DeserializeObject<RedditTopPostResponse>(content);
-                    var redditPostDataList = topPostResponse?.Data?.RedditPostDataList;
+                    List<RedditPostData?>? redditPostDataList = topPostResponse?.Data?.RedditPostDataList;
                     if (redditPostDataList?.Count > 0)
                     {
                         Log.Debug($"Successfully retrieved {redditPostDataList?.Count} Posts");
 
-                        var mostUpvotedPosts = topPostResponse?.Data?.RedditPostDataList?.OrderByDescending(x => x.PostData?.Upvotes)?.ToList();
-                        return mostUpvotedPosts ?? new List<RedditPostData>();
+                        List<RedditPostData?>? mostUpvotedPosts = redditPostDataList?.OrderByDescending(x => x?.PostData?.Upvotes).ToList();
+                        return mostUpvotedPosts ?? new List<RedditPostData?>();
                     }
                 }
-                return new List<RedditPostData>();
+                return new List<RedditPostData?>();
 
             }
             catch (Exception ex)
@@ -49,7 +57,7 @@ namespace SubRedditAPI.Repositories
             }
         }
 
-        public async Task<Dictionary<string,int>> GetUsersWithMostPosts()
+        public async Task<Dictionary<string, int>?> GetUsersWithMostPostsAsync()
         {
             try
             {
@@ -57,20 +65,23 @@ namespace SubRedditAPI.Repositories
 
                 var subRedditResponse = await GetSubRedditResponseAsync();
                 var authorPosts = new Dictionary<string, int>();
+
+                await HandleRateLimit(subRedditResponse, "GetSubRedditResponseAsync");
+
                 if (subRedditResponse.IsSuccessStatusCode)
                 {
                     var content = await subRedditResponse.Content.ReadAsStringAsync();
                     var topPostResponse = JsonConvert.DeserializeObject<RedditTopPostResponse>(content);
                     if (topPostResponse?.Data?.RedditPostDataList?.Count > 0)
                     {
-                        var topPosts = topPostResponse?.Data?.RedditPostDataList?.OrderByDescending(x => x.PostData?.Upvotes)?.ToList();
+                        var topPosts = topPostResponse?.Data?.RedditPostDataList?.OrderByDescending(x => x?.PostData?.Upvotes)?.ToList();
                         Log.Debug($"Successfully retrieved {topPosts?.Count} Gaming Subreddits");
 
                         if (topPosts?.Count > 0)
                         {
                             foreach (var post in topPosts)
                             {
-                                if (authorPosts.ContainsKey(post.PostData.Author))
+                                if (authorPosts.ContainsKey(post?.PostData?.Author))
                                 {
                                     authorPosts[post.PostData.Author]++;
                                 }
@@ -93,7 +104,7 @@ namespace SubRedditAPI.Repositories
             }
         }
 
-        public async Task<HttpResponseMessage> GetSubRedditResponseAsync()
+        public async Task<HttpResponseMessage?> GetSubRedditResponseAsync()
         {
             try
             {
@@ -114,6 +125,20 @@ namespace SubRedditAPI.Repositories
             {
                 Log.Error(ex, "Error retrieving gaming subreddit from repository layer");
                 throw;
+            }
+        }
+
+        private async Task HandleRateLimit(HttpResponseMessage? subRedditResponse, string apiBeingCalled)
+        {
+            int remainingNumberOfCalls = int.Parse(subRedditResponse.Headers.GetValues("X-Ratelimit-Remaining").First());
+
+            bool isRequestLimitReached = _rateLimitService.IsRequestAtRateLimit(apiBeingCalled, remainingNumberOfCalls);
+
+            if (isRequestLimitReached)
+            {
+                Log.Warning($"Request Limit has been reached for {apiBeingCalled} call");
+                Log.Debug("Delaying request by 1 Minute");
+                await Task.Delay(1000);
             }
         }
     }

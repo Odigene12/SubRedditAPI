@@ -18,28 +18,28 @@ namespace SubRedditAPI.Repositories
             _decoratedRepo = decoratedRepo;
         } 
 
-        public Task<List<RedditPostData?>?> GetPostWithMostUpVotesAsync()
+        public async Task<List<RedditPostData?>?> GetPostWithMostUpVotesAsync()
         {
-            return _memoryCache.GetOrCreateAsync(
+            return await _memoryCache.GetOrCreateAsync(
                 CacheKey, 
-                cacheEntry =>
+                async cacheEntry =>
                 {
                     cacheEntry.SetAbsoluteExpiration(TimeSpan.FromSeconds(20));
 
-                    return _decoratedRepo.GetPostWithMostUpVotesAsync();
+                    return await _decoratedRepo.GetPostWithMostUpVotesAsync();
                 });
 
         }
 
-        public Task<Dictionary<string, int>?> GetUsersWithMostPostsAsync()
+        public async Task<Dictionary<string, int>?> GetUsersWithMostPostsAsync()
         {
-            return _memoryCache.GetOrCreateAsync(
+            return await _memoryCache.GetOrCreateAsync(
                 CacheKey,
-                cacheEntry =>
+                async cacheEntry =>
                 {
                     cacheEntry.SetAbsoluteExpiration(TimeSpan.FromSeconds(20));
 
-                    return _decoratedRepo.GetUsersWithMostPostsAsync();
+                    return await _decoratedRepo.GetUsersWithMostPostsAsync();
                 });
         } 
     }

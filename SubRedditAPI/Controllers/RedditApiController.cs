@@ -22,7 +22,7 @@ namespace SubRedditAPI.Controllers
             Log.Information("Received GET request to GetPostWithMostUpVotes");
             try
             {
-                var postWithMostUpVotes = await _redditService.GetPostWithMostUpVotes();
+                var postWithMostUpVotes = await _redditService.GetPostWithMostUpVotesAsync();
                 return Ok(postWithMostUpVotes);
             }
             catch (Exception ex)
@@ -39,7 +39,7 @@ namespace SubRedditAPI.Controllers
             Log.Information("Received GET request to GetUsersWithMostPosts");
             try
             {
-                var usersWithMostPosts = await _redditService.GetUsersWithMostPosts();
+                var usersWithMostPosts = await _redditService.GetUsersWithMostPostsAsync();
                 return Ok(usersWithMostPosts);
             }
             catch (Exception ex)

@@ -4,8 +4,6 @@ namespace SubRedditAPI.Interfaces
 {
     public interface IRedditRepository
     {
-        Task<List<RedditPostData?>?> GetPostWithMostUpVotesAsync();
-
-        Task<Dictionary<string, int>?> GetUsersWithMostPostsAsync();
+        Task<HttpResponseMessage> GetSubRedditResponseAsync(string accessToken);
     }
 }

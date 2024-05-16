@@ -27,11 +27,11 @@ var redditApiCredentials = new RedditAPIConfig();
 builder.Configuration.Bind("RedditApiCredentials", redditApiCredentials);
 builder.Services.AddSingleton(redditApiCredentials);
 
-builder.Services.AddScoped<RedditRepository>();
-builder.Services.AddScoped<IRedditRepository, RedditCacheRepository>();
+builder.Services.AddScoped<RedditService>();
+builder.Services.AddScoped<IRedditService, RedditCacheRepository>();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IRedditOAuthService, RedditOAuthService>();
-builder.Services.AddScoped<IRedditService, RedditService>();
+builder.Services.AddScoped<IRedditRepository, RedditRepository>();
 builder.Services.AddScoped<IRateLimitService, RateLimitService>();
 
 builder.Host.UseSerilog((context, logConfig) => logConfig

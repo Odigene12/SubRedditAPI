@@ -9,7 +9,7 @@ namespace SubRedditAPI.Services
 
         public RateLimitService(IMemoryCache memoryCache) => _memoryCache = memoryCache;
 
-        public bool IsRequestAtRateLimit(string apiBeingCalled, int rateLimitRemaining)
+        public bool IsRequestAtRateLimit(string apiBeingCalled, double rateLimitRemaining)
         {
             string cacheKey = $"{apiBeingCalled}_RateLimiter";
             int numberOfcalls = _memoryCache.Get<int?>(cacheKey) ?? 0;

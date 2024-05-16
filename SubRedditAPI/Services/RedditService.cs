@@ -24,52 +24,70 @@ namespace SubRedditAPI.Services
 
         public async Task<List<RedditPostData?>?> GetPostWithMostUpVotesAsync()
         {
-            Log.Debug("Getting Posts with Most Upvotes");
-
-            var response = await GetAuthorizedSubRedditResponseAsync();
-            var cachedData = HandleRateLimit(response, CacheKey);
-
-            if (cachedData != null)
+            try
             {
-                return (List<RedditPostData?>)cachedData;
-            }
+                Log.Debug("Getting Posts with Most Upvotes");
 
-            if (response.IsSuccessStatusCode)
-            {
-                var redditPostDataList = await ExtractPostDataAsync(response);
-                if (redditPostDataList != null)
+                var response = await GetAuthorizedSubRedditResponseAsync();
+                var cachedData = HandleRateLimit(response, CacheKey);
+
+                if (cachedData != null)
                 {
-                    Log.Debug($"Successfully retrieved {redditPostDataList.Count} Posts");
-                    return redditPostDataList.OrderByDescending(x => x?.PostData?.Upvotes).ToList();
+                    return (List<RedditPostData?>)cachedData;
                 }
-            }
 
-            return new List<RedditPostData?>();
+                if (response.IsSuccessStatusCode)
+                {
+                    var redditPostDataList = await ExtractPostDataAsync(response);
+                    if (redditPostDataList != null)
+                    {
+                        Log.Debug($"Successfully retrieved {redditPostDataList.Count} Posts");
+                        return redditPostDataList.OrderByDescending(x => x?.PostData?.Upvotes).ToList();
+                    }
+                }
+
+                return new List<RedditPostData?>();
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error retrieving posts with most upvotes from service layer");
+                throw;
+            }
         }
 
         public async Task<Dictionary<string, int>?> GetUsersWithMostPostsAsync()
         {
-            Log.Debug("Getting Users with Most Posts");
-
-            var response = await GetAuthorizedSubRedditResponseAsync();
-            var cachedData = HandleRateLimit(response, CacheKey);
-
-            if (cachedData != null)
+            try
             {
-                return (Dictionary<string, int>)cachedData;
-            }
+                Log.Debug("Getting Users with Most Posts");
 
-            if (response.IsSuccessStatusCode)
-            {
-                var redditPostDataList = await ExtractPostDataAsync(response);
-                if (redditPostDataList != null)
+                var response = await GetAuthorizedSubRedditResponseAsync();
+                var cachedData = HandleRateLimit(response, CacheKey);
+
+                if (cachedData != null)
                 {
-                    Log.Debug($"Successfully retrieved {redditPostDataList.Count} Gaming Subreddits");
-                    return CountPostsByAuthor(redditPostDataList);
+                    return (Dictionary<string, int>)cachedData;
                 }
-            }
 
-            return new Dictionary<string, int>();
+                if (response.IsSuccessStatusCode)
+                {
+                    var redditPostDataList = await ExtractPostDataAsync(response);
+                    if (redditPostDataList != null)
+                    {
+                        Log.Debug($"Successfully retrieved {redditPostDataList.Count} Gaming Subreddits");
+                        return CountPostsByAuthor(redditPostDataList);
+                    }
+                }
+
+                return new Dictionary<string, int>();
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex , "Error retrieving users with most posts from service layer");
+                throw;
+            }
         }
 
         private async Task<HttpResponseMessage> GetAuthorizedSubRedditResponseAsync()
